@@ -1,12 +1,21 @@
 <template>
 
+    <div class="container">
+        <p>Pokemons Primeira Geração</p>
+        <div class="pesquisa">
+            <input v-model="pokemonFiltered" type="text" placeholder="Digite o nome do pokemon">
+        </div>
+    </div>
+
     <div class="listaPokemons">
-        <div class="cadaPoke" v-for="(pokemon, index) in pokemons" :key="pokemon.name">
+        <div class="cardPoke" v-for="pokemon in filterPokemon" :key="pokemon.name">
             <div class="infos">
-                {{index+1}} {{capitalizeFirstLetter(pokemon.name)}}
+                <p>
+                    {{capitalizeFirstLetter(pokemon.name)}}
+                </p>
             </div>
             <div class="imag">
-                <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index+1}.png`" :alt=pokemon.name>
+                <img :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getIdPokemon(pokemon)}.png`" :alt=pokemon.name>
             </div>
         </div>
     </div>
@@ -19,58 +28,73 @@ import axios from 'axios'
 export default {
   mounted() {
     axios.get('https://pokeapi.co/api/v2/pokemon?limit=150&offset=0').then((response) => {
-        this.pokemons = response.data.results 
+        this.pokemons = response.data.results
     })
     },
     data(){
         return {
-            pokemons: []
+            pokemons: [],
+            pokemonFiltered: ""
         }
     },
     methods: {
         capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
+        getIdPokemon(pokemon){
+            return pokemon.url.split("/")[6]
+        }
+    },
+    computed: {
+        filterPokemon() {
+            return this.pokemons.filter(poke => {
+                return poke.name.includes(this.pokemonFiltered)
+            })
         }
     }
 }
 
 </script>
 
-<style>
+<style scoped lang="scss">
+
+    $bgcolor: rgb(237, 243, 249);
+
+    body {
+    margin: 0;
+    padding: 0;
+    }
 
     .listaPokemons{
         display: flex;
         flex-wrap: wrap;
-        justify-content: flex-start;
-    }
-    
-    .cadaPoke {
-        display: flex;
-        background-color: rgba(109, 94, 94, 0.192);
-        padding: 10px;
-        margin: 10px;
-        border: solid 5px black;
-        width: 200px;
-        height: 100px;
-        background-color: white;
-    }
-
-    .infos{
-        display: block;
-        text-align: center;
-        width: 200px;
-        height: 50px;
-        padding: 3px;
-        border: solid 1px;
-    }
-
-    
-    .cadaPoke .imag{
-        display: block;
         justify-content: center;
-        text-align: center;
-        width: 200px;
-        border: solid;
+    }
+    
+    .cardPoke {
+        margin: 2px;
+        width: 180px;
+        height: 120px;
+        background-color: $bgcolor;
     }
 
+    .infos > p{
+        margin: 0;
+    }
+
+    .cardPoke:hover{
+        background-color: darken($color: $bgcolor, $amount: 10%);
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px;
+
+        p{
+            font-weight: bolder;
+            margin-right: 50px;
+        }
+    }
 </style>
